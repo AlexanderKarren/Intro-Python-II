@@ -1,15 +1,25 @@
 wall_message = "You can't go that way!\n"
 
 
-def display_inventory(player):
-    index = 1
+def display_inventory(player, in_conversation=False):
+    inventory_open = True
     print(f"{player.name}'s Bag:")
-    for item in player.inventory:
-        print(f"{index}: {item.name}")
-        index += 1
-    print(f"\nWallet: {player.balance} bumplecoins\n")
-    command = input("# to select item, 'q' to back out: ")
-    print()
+    while inventory_open:
+        index = 1
+        for item in player.inventory:
+            print(f"{index}: {item.name}")
+            index += 1
+        if in_conversation:
+            print(f"\nWallet: {player.balance} bumplecoins\n")
+        else:
+            print()
+        command = input("# to select item, 'q' to back out: ")
+        print()
+        if command.isnumeric():
+            if (int(command) >= 1 and int(command) < index):
+                return int(command) - 1
+        else:
+            inventory_open = False
 
 
 def display_chest_items(chest, inventory):
@@ -36,6 +46,39 @@ def display_chest_items(chest, inventory):
                 looting = False
             else:
                 print(f"That number does not appear in the list.\n")
+
+
+def converse_friendly(npc, player):
+    talking = True
+    greeting = npc.dialogue['greeting'].replace("{player}", player.name)
+    print(f'{npc.name}: "{greeting}"\n')
+    while(talking):
+        index = 1
+        print(f"Talk to {npc.name}:")
+        for option in npc.dialogue['player_options']:
+            print(f"{index}: {option}")
+            index += 1
+        print(f"{index}: * Give {npc.name} an item\n")
+        command = input("# to talk, 'q' to back out: ")
+        print()
+        if (command.isnumeric()):
+            if (int(command) >= 1 and int(command) < index):
+                print(f"{npc.dialogue['dialogues'][int(command) - 1]}\n")
+            elif (int(command) == index):
+                if len(player.inventory) <= 0:
+                    print(f"You don't have anything to give to {npc.name}!\n")
+                else:
+                    print(f'"{npc.dialogue["gift_phrase"]}"\n')
+                    selected_item = display_inventory(player, True)
+                    if npc.receive_gift(player.inventory[selected_item]):
+                        print(f"{npc.dialogue['good_gift']}\n")
+                        player.inventory.append(npc.item)
+                    else:
+                        print(f"{npc.dialogue['bad_gift']}\n")
+            else:
+                print(f"That number does not appear in the list.\n")
+        else:
+            talking = False
 
 
 def command_parser(command, player):
@@ -75,7 +118,7 @@ def command_parser(command, player):
             print("There is nothing here to loot!\n")
     elif (command == "talk"):
         if player.current_room.npc:
-            print("DEV: Engage in dialogue tree")
+            converse_friendly(player.current_room.npc, player)
         else:
             print("There is nobody here to talk to!\n")
     elif (command == "exit" or command == "quit" or command == "q"):

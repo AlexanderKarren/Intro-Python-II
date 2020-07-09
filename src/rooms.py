@@ -1,4 +1,5 @@
 from room import Room
+from npcs import npc
 from chests import chest
 
 room = {
@@ -10,11 +11,10 @@ The building directly south of you is Rupert's Rumpets HR Department."""),
     # E6
     'hr':  Room("HR Department", """You are inside Rupert's Rumpets HR Dpt.\n
 There is a purple yarrowsneezie in a pantsuit working the front desk.
-She's a familiar face.""", None, chest["hr_garbage_can"]),
+She's a familiar face.""", npc["hr_jammy"], chest["hr_garbage_can"]),
 }
 
-
-# Link rooms together
+# Room Links
 
 room['spawn'].s_to = room['hr']
 room['hr'].n_to = room['spawn']
