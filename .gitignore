@@ -1,4 +1,4 @@
 .vscode
 *.pyc
 __pycache__
-resources/map.pxd
+planning/map.pxd
